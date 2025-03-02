@@ -1,7 +1,8 @@
 // System
 let canvas = document.getElementById("canvas");
-const baseImage = document.getElementById("myImage");
+const baseImage = document.getElementById("baseImage");
 const bgElement = document.getElementById("bgImage");
+const trampLegs = document.getElementById("trampLegs");
 let ctx = canvas.getContext("2d", { alpha: false });
 let canvasWidthScaled = canvas.width;
 let canvasHeightScaled = canvas.height;
@@ -410,6 +411,25 @@ function DrawLine(x1, y1, x2, y2, color, width) {
     ctx.restore();
 }
 
+function DrawImage(x1, y1, x2, y2, image, width) {
+    if (!(image instanceof HTMLImageElement) || !image.complete) {
+        console.warn("Line image is not loaded yet.");
+        return;
+    }
+
+    let dx = x2 - x1;
+    let dy = y2 - y1;
+    let length = Math.sqrt(dx * dx + dy * dy); // Line length
+    let angle = Math.atan2(dy, dx); // Rotation angle
+
+    ctx.save();
+    ctx.translate(x1, y1); // Move to start point
+    ctx.rotate(angle); // Rotate to match line direction
+    ctx.drawImage(image, 0, -width / 2, length, width); // Stretch image along the line
+    ctx.restore();
+}
+
+
 function DrawRectangle(width, height, color, image = null) {
     let halfWidth = width * 0.5;
     let halfHeight = height * 0.5;
@@ -447,52 +467,69 @@ function DrawTrampoline() {
     ctx.save();
     ctx.translate(canvas.width * 0.5, canvas.height - 120);
 
-    DrawRectangle(canvasWidthScaled, 240, "#00D846", baseImage);   // Grass
     DrawLine(-196, -20, -196, 80, "#000", 12);          // Left pole
     DrawLine(196, -20, 196, 80, "#000", 12);            // Right pole
     ctx.translate(0, Math.sin(trampShakeAngle * Math.PI / 180.0) * trampShakeAmount);
-    DrawLine(-200, 0, 200, 0, "#000", 12);              // Mesh
+    // DrawLine(-200, 0, 200, 0, "#000", 12);              // Mesh
+    DrawRectangle(canvasWidthScaled, 340, "#00D846", baseImage);   // Grass
 
     ctx.restore();
 }
+
+// function DrawPlayer() {
+//     ctx.save();
+//     ctx.translate(canvas.width * 0.5 + playerX, (canvas.height - 170) - playerY);
+//     ctx.rotate(playerAngle * Math.PI / 180.0);
+
+//     ctx.translate(0, -40);
+//     DrawRectangle(80, 96, "#FF9600");       // Head
+//     ctx.save();
+//     if (blinkTime > 0.0 || fallOut) {
+//         ctx.translate(-4, 4);
+//         DrawRectangle(40, 40, "#000");      // Eye
+//         ctx.translate(4, 4);
+//         DrawRectangle(34, 34, "#FF9600");   // Eye
+//         ctx.translate(-12, 0);
+//     }
+//     else {
+//         ctx.translate(-4, 4);
+//         DrawRectangle(40, 40, "#FFF");      // Eye
+//         let pupilOffset = Math.max(Math.min((playerVel / 1000), 1.0), 0.0) * 7.0;
+//         ctx.translate(-8, 4 - pupilOffset);
+//         DrawRectangle(16, 24, "#000");      // Pupil
+//     }
+//     ctx.restore();
+
+//     ctx.translate(-4, 4);
+//     if (!touch || mainMenuTouch) {
+//         ctx.translate(8, 40);
+//         DrawLine(0, 0, 0, 60, "#000", 8);   // Leg
+//     }
+//     else {
+//         ctx.translate(8, 40);
+//         DrawLine(0, 0, -30, 20, "#000", 8); // Leg (upper)
+//         DrawLine(-30, 20, 0, 40, "#000", 8);// Leg (lower)
+//     }
+
+//     ctx.restore();
+// }
+let playerYOffset = 140;
 
 function DrawPlayer() {
+    let img = document.getElementById("playerSprite");
+
     ctx.save();
-    ctx.translate(canvas.width * 0.5 + playerX, (canvas.height - 170) - playerY);
+    ctx.translate(canvas.width * 0.5 + playerX, (canvas.height - 170) - playerY - playerYOffset);
     ctx.rotate(playerAngle * Math.PI / 180.0);
 
-    ctx.translate(0, -40);
-    DrawRectangle(80, 96, "#FF9600");       // Head
-    ctx.save();
-    if (blinkTime > 0.0 || fallOut) {
-        ctx.translate(-4, 4);
-        DrawRectangle(40, 40, "#000");      // Eye
-        ctx.translate(4, 4);
-        DrawRectangle(34, 34, "#FF9600");   // Eye
-        ctx.translate(-12, 0);
-    }
-    else {
-        ctx.translate(-4, 4);
-        DrawRectangle(40, 40, "#FFF");      // Eye
-        let pupilOffset = Math.max(Math.min((playerVel / 1000), 1.0), 0.0) * 7.0;
-        ctx.translate(-8, 4 - pupilOffset);
-        DrawRectangle(16, 24, "#000");      // Pupil
-    }
-    ctx.restore();
+    let scale = 0.15 * 1.75; // Scale down from 900x900 & increase by 20%
+    ctx.scale(scale, scale);
 
-    ctx.translate(-4, 4);
-    if (!touch || mainMenuTouch) {
-        ctx.translate(8, 40);
-        DrawLine(0, 0, 0, 60, "#000", 8);   // Leg
-    }
-    else {
-        ctx.translate(8, 40);
-        DrawLine(0, 0, -30, 20, "#000", 8); // Leg (upper)
-        DrawLine(-30, 20, 0, 40, "#000", 8);// Leg (lower)
-    }
+    ctx.drawImage(img, -450, -450, 900, 900); // Centered on (-450,-450)
 
     ctx.restore();
 }
+
 
 function DrawUI() {
     ctx.save();
