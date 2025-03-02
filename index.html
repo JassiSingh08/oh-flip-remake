@@ -11,8 +11,10 @@
     <title>oh, flip!</title>
 
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap");
       html,
       body {
+        user-select: none;
         width: 100%;
         height: 100%;
         margin: 0px;
@@ -22,6 +24,7 @@
         display: flex;
         justify-content: center;
         align-items: end;
+        font-family: "Press Start 2P";
       }
     </style>
   </head>
@@ -40,8 +43,18 @@
       src="assets/bg.png"
       style="display: none"
     />
-    <img id="baseImage" alt="grass" src="assets/base.png" style="display: none" />
-    <img id="playerSprite" alt="grass" src="assets/0_Skeleton_Warrior_Jump Loop_000.png" style="display: none" />
+    <img
+      id="baseImage"
+      alt="grass"
+      src="assets/base.png"
+      style="display: none"
+    />
+    <img
+      id="playerSprite"
+      alt="grass"
+      src="assets/character.png"
+      style="display: none"
+    />
     <script src="main.js"></script>
   </body>
 </html>

@@ -258,7 +258,7 @@ function UpdatePlayer(dt) {
             fallOutTime = 1.0;
             fallOutLeft = Math.random() < 0.5;
 
-            AddPopup(canvas.width * 0.5 + 100, canvas.height - 100, "miss", "#F42");
+            AddPopup(canvas.width * 0.5 + 100, canvas.height - 100, "MISS", "#F42");
 
             if (Math.abs(playerAngle) > 145.0) {
                 didLandOnHead = true;
@@ -290,10 +290,10 @@ function UpdatePlayer(dt) {
                 }
 
                 if (perfectJump) {
-                    AddPopup(canvas.width * 0.5 + 100, canvas.height - 100, "perfect!", "#FF0");
+                    AddPopup(canvas.width * 0.5 + 100, canvas.height - 100, "PERFECT!", "#FF0");
                 }
                 else {
-                    AddPopup(canvas.width * 0.5 + 100, canvas.height - 100, "good", "#0F4");
+                    AddPopup(canvas.width * 0.5 + 100, canvas.height - 100, "GOOD!", "#0F4");
                 }
             }
             else {
@@ -456,7 +456,8 @@ function DrawText(text, x, y, angle, size, align, color) {
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(angle);
-    ctx.font = `bold ${size}px Arial`;
+    size = Math.max(size * 0.4, 10); // Won't go below 10px
+    ctx.font = `bold ${size}px "Press Start 2P"`;
     ctx.fillStyle = color;
     ctx.textAlign = align.toLowerCase();
     ctx.fillText(text, 0, 0);
@@ -476,59 +477,36 @@ function DrawTrampoline() {
     ctx.restore();
 }
 
-// function DrawPlayer() {
-//     ctx.save();
-//     ctx.translate(canvas.width * 0.5 + playerX, (canvas.height - 170) - playerY);
-//     ctx.rotate(playerAngle * Math.PI / 180.0);
-
-//     ctx.translate(0, -40);
-//     DrawRectangle(80, 96, "#FF9600");       // Head
-//     ctx.save();
-//     if (blinkTime > 0.0 || fallOut) {
-//         ctx.translate(-4, 4);
-//         DrawRectangle(40, 40, "#000");      // Eye
-//         ctx.translate(4, 4);
-//         DrawRectangle(34, 34, "#FF9600");   // Eye
-//         ctx.translate(-12, 0);
-//     }
-//     else {
-//         ctx.translate(-4, 4);
-//         DrawRectangle(40, 40, "#FFF");      // Eye
-//         let pupilOffset = Math.max(Math.min((playerVel / 1000), 1.0), 0.0) * 7.0;
-//         ctx.translate(-8, 4 - pupilOffset);
-//         DrawRectangle(16, 24, "#000");      // Pupil
-//     }
-//     ctx.restore();
-
-//     ctx.translate(-4, 4);
-//     if (!touch || mainMenuTouch) {
-//         ctx.translate(8, 40);
-//         DrawLine(0, 0, 0, 60, "#000", 8);   // Leg
-//     }
-//     else {
-//         ctx.translate(8, 40);
-//         DrawLine(0, 0, -30, 20, "#000", 8); // Leg (upper)
-//         DrawLine(-30, 20, 0, 40, "#000", 8);// Leg (lower)
-//     }
-
-//     ctx.restore();
-// }
 let playerYOffset = 140;
+let frameIndex = 0;
+const totalFrames = 10;
+const frameWidth = 1280 / totalFrames;
+const frameHeight = 128;
 
 function DrawPlayer() {
     let img = document.getElementById("playerSprite");
-
     ctx.save();
-    ctx.translate(canvas.width * 0.5 + playerX, (canvas.height - 170) - playerY - playerYOffset);
+
+    let pivotOffsetY = frameHeight / 2 + 25;
+    let pivotOffsetX = frameWidth / 2;
+    let scale = 3;
+
+    ctx.translate(canvas.width * 0.5 + playerX, (canvas.height - 220) - playerY - playerYOffset);
     ctx.rotate(playerAngle * Math.PI / 180.0);
+    ctx.scale(-scale, scale);
 
-    let scale = 0.15 * 1.75; // Scale down from 900x900 & increase by 20%
-    ctx.scale(scale, scale);
+    let sourceX = frameIndex * frameWidth;
 
-    ctx.drawImage(img, -450, -450, 900, 900); // Centered on (-450,-450)
-
+    ctx.drawImage(img, sourceX, 0, frameWidth, frameHeight, -pivotOffsetX, -pivotOffsetY, frameWidth, frameHeight);
+    // ctx.fillStyle = "red";
+    // ctx.fillRect(-2, -2, 4, 4);
     ctx.restore();
 }
+
+
+setInterval(() => {
+    frameIndex = (frameIndex + 1) % totalFrames;
+}, 200);
 
 
 function DrawUI() {
@@ -536,17 +514,28 @@ function DrawUI() {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     if (mainMenu) {
-        let titleTxt = "oh, flip!";
+        let titleTxt = "OH, FLIP!";
         DrawText(titleTxt, canvas.width * 0.5, 160, -5 * Math.PI / 180.0, 170, "center", "#000");
         DrawText(titleTxt, (canvas.width * 0.5) - 10, 155, -5 * Math.PI / 180.0, 170, "center", "#FF9600");
+        let subtitleY = 240;
+        let instructionsY = subtitleY + 80;
+        let lineSpacing = 45;
+        let offsetX = 10;
 
-        let subtitleTxt = "a game about backflips";
-        DrawText(subtitleTxt, (canvas.width * 0.5), 240, -5 * Math.PI / 180.0, 50, "center", "#000");
-        DrawText(subtitleTxt, (canvas.width * 0.5) - 4, 235, -5 * Math.PI / 180.0, 50, "center", "#FFF");
+        let subtitleTxt = "All About BACKFLIPS!";
+        DrawText(subtitleTxt, (canvas.width * 0.5) - offsetX, subtitleY, 0.0, 50, "center", "#000");
+        DrawText(subtitleTxt, (canvas.width * 0.5) - offsetX - 4, subtitleY - 5, 0.0, 50, "center", "#FFF");
 
-        let instructionsTxt = "land flips to gain height - complete goals to feel good";
-        DrawText(instructionsTxt, (canvas.width * 0.5), canvas.height - 20, 0.0, 25, "center", "#000");
-        DrawText(instructionsTxt, (canvas.width * 0.5) - 3, canvas.height - 23, 0.0, 25, "center", "#FFF");
+
+        let instructionsLine1 = "Land flips to gain Height,";
+        let instructionsLine2 = "Complete goals to feel Right :D";
+
+        DrawText(instructionsLine1, (canvas.width * 0.5), instructionsY, 0.0, 50, "center", "#000"); // Increased to 40px
+        DrawText(instructionsLine1, (canvas.width * 0.5) - 3, instructionsY - 3, 0.0, 50, "center", "#FFF");
+
+        DrawText(instructionsLine2, (canvas.width * 0.5), instructionsY + lineSpacing, 0.0, 50, "center", "#000"); // Increased to 40px
+        DrawText(instructionsLine2, (canvas.width * 0.5) - 3, instructionsY + lineSpacing - 3, 0.0, 50, "center", "#FFF");
+
     }
     else {
         let heightFt = Math.floor(playerY / 40.0);
@@ -557,7 +546,7 @@ function DrawUI() {
         }
 
         let heightTxt = `Height: ${heightFt} ft (Best: ${maxHeightFt} ft)`;
-        DrawText(heightTxt, 12, 27, 0.0, 20, "left", "#000");
+        DrawText(heightTxt, 12, 27, 0.0, 40, "left", "#FFF");
         //DrawText(heightTxt, 18, 28, 0.0, 25, "left", "#AAF");
 
         let maxTotalFlips = localStorage.getItem("ohflip.maxTotalFlips");
@@ -567,17 +556,17 @@ function DrawUI() {
         }
 
         let flipsTxt = `Flips: ${totalFlips} (Best: ${maxTotalFlips})`;
-        DrawText(flipsTxt, 12, 50, 0.0, 20, "left", "#000");
+        DrawText(flipsTxt, 12, 75, 0.0, 40, "left", "#FFF");
         //DrawText(flipsTxt, 18, 60, 0.0, 25, "left", "#FFF");
 
-        let goalTextColor = "#000";
+        let goalTextColor = "#FFF";
         if (goalCompleteTime > 0.0) {
             goalTextColor = (goalCompleteTime % 0.15 < 0.075) ? "#000" : "#00FF00";
         }
 
         if (goalIdx < goals.length) {
-            DrawText(`Goal #${goalIdx + 1}:`, canvas.width - 12, 27, 0.0, 20, "right", goalTextColor);
-            DrawText(goals[goalIdx].text, canvas.width - 12, 50, 0.0, 20, "right", goalTextColor);
+            DrawText(`Goal #${goalIdx + 1}:`, canvas.width - 12, 27, 0.0, 40, "right", goalTextColor);
+            DrawText(goals[goalIdx].text, canvas.width - 12, 75, 0.0, 40, "right", goalTextColor);
         }
         else {
             goalTextColor = (Date.now() % 800 < 400) ? "#000" : "#FF9600";
@@ -593,8 +582,8 @@ function DrawUI() {
         let offsetAnglePct = Math.min(popup.time / 0.4, 1.0);
         let xOffset = Math.sin(offsetAnglePct * Math.PI * 0.5) * 25.0;
         let yOffset = Math.sin(offsetAnglePct * Math.PI * 0.5) * 50.0;
-        let startSize = popup.smallSize ? 20 : 30;
-        let sizeMult = popup.smallSize ? 10 : 25;
+        let startSize = popup.smallSize ? 25 : 50;
+        let sizeMult = popup.smallSize ? 15 : 50;
         DrawText(popup.text, popup.x + xOffset, popup.y - yOffset, -5 * Math.PI / 180.0, startSize + Math.sin(popupPct * Math.PI * 0.75) * sizeMult, "center", "#000");
         DrawText(popup.text, (popup.x + xOffset) - 3, (popup.y - yOffset) - 3, -5 * Math.PI / 180.0, startSize + Math.sin(popupPct * Math.PI * 0.75) * sizeMult, "center", popup.color);
     });
@@ -603,7 +592,7 @@ function DrawUI() {
 }
 
 function AddPopup(x, y, text, color, smallSize) {
-    popups.push({ x: x, y: y, text: text, color: color, time: 0.0, smallSize: smallSize || false });
+    popups.push({ x: x, y: y - canvas.height / 3, text: text, color: color, time: 0.0, smallSize: smallSize || false });
 }
 
 function FitToScreen() {
@@ -629,7 +618,7 @@ function FitToScreen() {
 
 function CheckGoals() {
     if (goalIdx < goals.length && goals[goalIdx].func(goals[goalIdx])) {
-        AddPopup(canvas.width - 100, 120, "complete!", "#FF0", true);
+        AddPopup(canvas.width - 100, 120, "COMPLETE!", "#FF0", true);
         goalCompleteTime = 1.0;
         didAFlipStreak = 0;
         perfectStreak = 0;
