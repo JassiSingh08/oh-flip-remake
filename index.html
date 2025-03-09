@@ -2,31 +2,16 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
     <meta name="apple-mobile-web-app-title" content="oh, flip!" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-
+    <link rel="stylesheet" href="styles.css" />
     <title>oh, flip!</title>
-
-    <style>
-      @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap");
-      html,
-      body {
-        user-select: none;
-        width: 100%;
-        height: 100%;
-        margin: 0px;
-        border: 0;
-        overflow: hidden; /*  Disable scrollbars */
-        background-color: #008894;
-        display: flex;
-        justify-content: center;
-        align-items: end;
-        font-family: "Press Start 2P";
-      }
-    </style>
   </head>
   <body>
     <div id="game" style="background-color: #dfd996">
@@ -55,6 +40,12 @@
       src="assets/character.png"
       style="display: none"
     />
+    <div id="confirmation" class="hidden">
+      <button id="yesAllButton">Reset All!</button>
+      <button id="yesButton">Reset Goals!</button>
+      <button id="noButton">Keep Playing!</button>
+    </div>
+
     <script src="main.js"></script>
   </body>
 </html>

@@ -2,7 +2,7 @@
 let canvas = document.getElementById("canvas");
 const baseImage = document.getElementById("baseImage");
 const bgElement = document.getElementById("bgImage");
-const trampLegs = document.getElementById("trampLegs");
+let img = document.getElementById("playerSprite");
 let ctx = canvas.getContext("2d", { alpha: false });
 let canvasWidthScaled = canvas.width;
 let canvasHeightScaled = canvas.height;
@@ -91,9 +91,9 @@ let goalCompleteTime = 0.0;
 
 document.addEventListener("mousedown", e => { touch = true; SetTouchPos(e); }, false);
 document.addEventListener("mouseup", e => { touch = false; SetTouchPos(e); }, false);
-document.addEventListener("touchstart", e => { touch = true; SetTouchPos(e); e.preventDefault(); }, false);
-document.addEventListener("touchend", e => { touch = false; SetTouchPos(e); e.preventDefault(); }, false);
-document.addEventListener("touchcancel", e => { touch = false; SetTouchPos(e); e.preventDefault(); }, false);
+document.addEventListener("touchstart", e => { touch = true; SetTouchPos(e); }, false);
+document.addEventListener("touchend", e => { touch = false; SetTouchPos(e); }, false);
+document.addEventListener("touchcancel", e => { touch = false; SetTouchPos(e); }, false);
 document.addEventListener("keydown", e => {
     if (e.altKey && e.code === "KeyR") {
         localStorage.setItem("ohflip.maxHeightFt", 0);
@@ -180,6 +180,7 @@ function GameLoop(curTime) {
     DrawTrampoline();
     DrawPlayer();
     DrawUI();
+    DrawArrow();
 
     ctx.restore();
     window.requestAnimationFrame(GameLoop);
@@ -189,18 +190,18 @@ function UpdatePlayer(dt) {
     let playerTouch = touch && !mainMenuTouch;
 
     // Falling out?
-    if (fallOut) {
-        let fallOutPct = fallOutTime / 1.0;
-        playerX = Math.cos(fallOutPct * Math.PI * 0.5) * 400.0 * (fallOutLeft ? -1.0 : 1.0) * bounceVel * 0.001;
-        playerY = Math.sin(fallOutPct * Math.PI) * 200.0 * bounceVel * 0.001;
-        playerAngle += 800.0 * dt * (fallOutLeft ? -1.0 : 1.0);
+    // if (fallOut) {
+    //     let fallOutPct = fallOutTime / 1.0;
+    //     playerX = Math.cos(fallOutPct * Math.PI * 0.5) * 400.0 * (fallOutLeft ? -1.0 : 1.0) * bounceVel * 0.001;
+    //     playerY = Math.sin(fallOutPct * Math.PI) * 200.0 * bounceVel * 0.001;
+    //     playerAngle += 800.0 * dt * (fallOutLeft ? -1.0 : 1.0);
 
-        fallOutTime -= dt;
-        if (fallOutTime <= 0.0) {
-            Reset();
-        }
-        return;
-    }
+    //     fallOutTime -= dt;
+    //     if (fallOutTime <= 0.0) {
+    //         Reset();
+    //     }
+    //     return;
+    // }
 
     // Flipping?
     if (playerTouch && playerY > 100) {
@@ -468,11 +469,11 @@ function DrawTrampoline() {
     ctx.save();
     ctx.translate(canvas.width * 0.5, canvas.height - 120);
 
-    DrawLine(-196, -20, -196, 80, "#000", 12);          // Left pole
-    DrawLine(196, -20, 196, 80, "#000", 12);            // Right pole
+    // DrawLine(-196, -20, -196, 80, "#000", 12);          // Left pole
+    // DrawLine(196, -20, 196, 80, "#000", 12);            // Right pole
     ctx.translate(0, Math.sin(trampShakeAngle * Math.PI / 180.0) * trampShakeAmount);
     // DrawLine(-200, 0, 200, 0, "#000", 12);              // Mesh
-    DrawRectangle(canvasWidthScaled, 340, "#00D846", baseImage);   // Grass
+    DrawRectangle(canvasWidthScaled, 180, "#00D846", baseImage);   // Grass
 
     ctx.restore();
 }
@@ -483,15 +484,43 @@ const totalFrames = 10;
 const frameWidth = 1280 / totalFrames;
 const frameHeight = 128;
 
+
+
+function DrawArrow() {
+    let baseScale = 3;  // Default scale
+    let minScale = 2;   // Minimum allowed scale
+
+    // Adjust scale based on camScale (inverse relationship)
+    let scale = Math.max(minScale, baseScale / camScale);
+    let screenX = canvas.width * 0.5 + playerX;
+    let screenY = (canvas.height - 130) - playerY - playerYOffset;
+
+    ctx.save(); // Save context state
+    ctx.fillStyle = "red";
+
+    // Scale before drawing the arrow
+    ctx.translate(screenX, screenY - frameHeight - 30); // Move to the correct position
+    ctx.scale(scale, scale); // Apply scaling
+
+    ctx.beginPath();
+    ctx.moveTo(0, -10);  // Tip of the arrow
+    ctx.lineTo(-5, -20); // Left wing
+    ctx.lineTo(5, -20);  // Right wing
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore(); // Restore context state to avoid affecting other drawings
+}
+
+
 function DrawPlayer() {
-    let img = document.getElementById("playerSprite");
     ctx.save();
 
     let pivotOffsetY = frameHeight / 2 + 25;
     let pivotOffsetX = frameWidth / 2;
     let scale = 3;
 
-    ctx.translate(canvas.width * 0.5 + playerX, (canvas.height - 220) - playerY - playerYOffset);
+    ctx.translate(canvas.width * 0.5 + playerX, (canvas.height - 130) - playerY - playerYOffset);
     ctx.rotate(playerAngle * Math.PI / 180.0);
     ctx.scale(-scale, scale);
 
@@ -502,7 +531,6 @@ function DrawPlayer() {
     // ctx.fillRect(-2, -2, 4, 4);
     ctx.restore();
 }
-
 
 setInterval(() => {
     frameIndex = (frameIndex + 1) % totalFrames;
@@ -546,7 +574,7 @@ function DrawUI() {
         }
 
         let heightTxt = `Height: ${heightFt} ft (Best: ${maxHeightFt} ft)`;
-        DrawText(heightTxt, 12, 27, 0.0, 40, "left", "#FFF");
+        DrawText(heightTxt, 12, 30, 0.0, 40, "left", "#FFF");
         //DrawText(heightTxt, 18, 28, 0.0, 25, "left", "#AAF");
 
         let maxTotalFlips = localStorage.getItem("ohflip.maxTotalFlips");
@@ -556,7 +584,7 @@ function DrawUI() {
         }
 
         let flipsTxt = `Flips: ${totalFlips} (Best: ${maxTotalFlips})`;
-        DrawText(flipsTxt, 12, 75, 0.0, 40, "left", "#FFF");
+        DrawText(flipsTxt, 12, 60, 0.0, 40, "left", "#FFF");
         //DrawText(flipsTxt, 18, 60, 0.0, 25, "left", "#FFF");
 
         let goalTextColor = "#FFF";
@@ -565,14 +593,11 @@ function DrawUI() {
         }
 
         if (goalIdx < goals.length) {
-            DrawText(`Goal #${goalIdx + 1}:`, canvas.width - 12, 27, 0.0, 40, "right", goalTextColor);
-            DrawText(goals[goalIdx].text, canvas.width - 12, 75, 0.0, 40, "right", goalTextColor);
+            DrawText(`Goal #${goalIdx + 1}:`, 12, 90, 0.0, 40, "left", goalTextColor);
+            DrawText(goals[goalIdx].text, 12, 120, 0.0, 40, "left", goalTextColor);
         }
         else {
-            goalTextColor = (Date.now() % 800 < 400) ? "#000" : "#FF9600";
-
-            DrawText(`Congratulations! You've completed all goals!`, canvas.width - 12, 27, 0.0, 20, "right", goalTextColor);
-            DrawText("Press here to reset and play again!", canvas.width - 12, 50, 0.0, 20, "right", goalTextColor);
+            showConfirmation();
         }
     }
 
@@ -596,7 +621,8 @@ function AddPopup(x, y, text, color, smallSize) {
 }
 
 function FitToScreen() {
-    let aspectRatio = canvas.width / canvas.height;
+    // let aspectRatio = canvas.width / canvas.height;
+    let aspectRatio = window.innerWidth / window.innerHeight;
     let newWidth = window.innerWidth;
     let newHeight = window.innerWidth / aspectRatio;
 
@@ -652,6 +678,74 @@ function LandedOnHead(goal) {
 function ReachedHeight(goal) {
     return Math.floor(maxHeightThisBounce / 40.0) >= goal.param;
 }
+
+function showConfirmation() {
+    const MissionsCompleted = Number(localStorage.getItem("ohflip.MissionsCompleted!"));
+    if (MissionsCompleted === 1) return; // Stop if already completed
+
+    touch = false;
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 3;
+    const goalTextColor = (Date.now() % 800 < 400) ? "#000" : "#FF9600";
+    DrawText(`Congratulations!`, centerX, centerY - 20, 0.0, 50, "center", goalTextColor);
+    DrawText(`You've completed all the goals!`, centerX, centerY + 10, 0.0, 45, "center", goalTextColor);
+    DrawText("Reset or continue playing?", centerX, centerY + 50, 0.0, 40, "center", goalTextColor);
+
+
+    document.getElementById("confirmation").classList.remove("hidden");
+}
+
+function resetAll() {
+    localStorage.clear();
+    goalIdx = 0;
+    Reset();
+    hideConfirmation();
+}
+
+function resetGoals() {
+    localStorage.setItem("ohflip.goalIdx", 0);
+    goalIdx = 0;
+    Reset();
+    hideConfirmation();
+}
+
+function completeMissions() {
+    console.log("Thanks for playing!");
+    localStorage.setItem("ohflip.MissionsCompleted!", 1);
+    hideConfirmation();
+}
+
+function hideConfirmation() {
+    touch = true
+    document.getElementById("confirmation").classList.add("hidden");
+}
+
+// Attach event listeners once
+document.getElementById("yesAllButton").onclick = resetAll;
+document.getElementById("yesButton").onclick = resetGoals;
+document.getElementById("noButton").onclick = completeMissions;
+
+
+// Prevent zooming with Ctrl + Scroll
+document.addEventListener("wheel", function (event) {
+    if (event.ctrlKey) {
+        event.preventDefault();
+    }
+}, { passive: false });
+
+// Prevent zooming with keyboard shortcuts (Ctrl + / Ctrl - / Ctrl 0)
+document.addEventListener("keydown", function (event) {
+    if (event.ctrlKey && ["+", "-", "0"].includes(event.key)) {
+        event.preventDefault();
+    }
+});
+
+// Prevent pinch-to-zoom on touch devices
+document.addEventListener("touchmove", function (event) {
+    if (event.scale !== 1) {
+        event.preventDefault();
+    }
+}, { passive: false });
 
 Reset();
 window.requestAnimationFrame(GameLoop);
