@@ -190,18 +190,18 @@ function UpdatePlayer(dt) {
     let playerTouch = touch && !mainMenuTouch;
 
     // Falling out?
-    // if (fallOut) {
-    //     let fallOutPct = fallOutTime / 1.0;
-    //     playerX = Math.cos(fallOutPct * Math.PI * 0.5) * 400.0 * (fallOutLeft ? -1.0 : 1.0) * bounceVel * 0.001;
-    //     playerY = Math.sin(fallOutPct * Math.PI) * 200.0 * bounceVel * 0.001;
-    //     playerAngle += 800.0 * dt * (fallOutLeft ? -1.0 : 1.0);
+    if (fallOut) {
+        let fallOutPct = fallOutTime / 1.0;
+        playerX = Math.cos(fallOutPct * Math.PI * 0.5) * 400.0 * (fallOutLeft ? -1.0 : 1.0) * bounceVel * 0.001;
+        playerY = Math.sin(fallOutPct * Math.PI) * 200.0 * bounceVel * 0.001;
+        playerAngle += 800.0 * dt * (fallOutLeft ? -1.0 : 1.0);
 
-    //     fallOutTime -= dt;
-    //     if (fallOutTime <= 0.0) {
-    //         Reset();
-    //     }
-    //     return;
-    // }
+        fallOutTime -= dt;
+        if (fallOutTime <= 0.0) {
+            Reset();
+        }
+        return;
+    }
 
     // Flipping?
     if (playerTouch && playerY > 100) {
