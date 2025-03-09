@@ -1,7 +1,0 @@
-{
-  "name": "oh-flip",
-  "version": "1.0.0",
-  "scripts": {
-    "start": "npx live-server --host=0.0.0.0"
-  }
-}

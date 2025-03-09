@@ -10,6 +10,12 @@ let lastFrameTime;
 let actualWidth = -1;
 let actualHeight = -1;
 
+//Sounds
+const fallOutSound = new Audio("./assets/sfxs/miss.wav");
+const goodSound = new Audio("./assets/sfxs/perfect.wav");
+const perfectSound = new Audio("./assets/sfxs/good.wav");
+const laughingSound = new Audio("./assets/sfxs/laughing.wav");
+
 // Player
 let playerX = 0;
 let playerY = 0;
@@ -228,6 +234,7 @@ function UpdatePlayer(dt) {
     flipsThisBounce = Math.floor((totalAngleDeltaThisBounce + 90.0) / 360.0);
     if (flipsThisBounce > prevFlipsThisBounce) {
         AddPopup(canvas.width * 0.5 + 100, canvas.height - 200, `x${flipsThisBounce}`, "#D37CFF");
+        fallOutSound.play();
 
         if (playerVel > 0.0) {
             flipsBeforePeak++;
@@ -260,6 +267,7 @@ function UpdatePlayer(dt) {
             fallOutLeft = Math.random() < 0.5;
 
             AddPopup(canvas.width * 0.5 + 100, canvas.height - 100, "MISS", "#F42");
+            laughingSound.play();
 
             if (Math.abs(playerAngle) > 145.0) {
                 didLandOnHead = true;
@@ -288,12 +296,14 @@ function UpdatePlayer(dt) {
                 didAFlipStreak++;
                 if (perfectJump) {
                     perfectStreak++;
+                    perfectSound.play();
                 }
 
                 if (perfectJump) {
                     AddPopup(canvas.width * 0.5 + 100, canvas.height - 100, "PERFECT!", "#FF0");
                 }
                 else {
+                    goodSound.play();
                     AddPopup(canvas.width * 0.5 + 100, canvas.height - 100, "GOOD!", "#0F4");
                 }
             }
