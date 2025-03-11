@@ -52,3 +52,25 @@ button:hover {
 .hidden {
   display: none !important;
 }
+
+#muteButton {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  font-size: 24px;
+  cursor: pointer;
+  color: white;
+  width: 40px; 
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent; 
+  outline: none; 
+}
+#muteButton svg {
+  width: 30px;
+  height: 30px;
+  fill:white;
+}

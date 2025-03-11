@@ -233,6 +233,7 @@ function UpdatePlayer(dt) {
     let prevFlipsThisBounce = flipsThisBounce;
     flipsThisBounce = Math.floor((totalAngleDeltaThisBounce + 90.0) / 360.0);
     if (flipsThisBounce > prevFlipsThisBounce) {
+        fallOutSound.currentTime = 0;
         AddPopup(canvas.width * 0.5 + 100, canvas.height - 200, `x${flipsThisBounce}`, "#D37CFF");
         fallOutSound.play();
 
@@ -296,6 +297,7 @@ function UpdatePlayer(dt) {
                 didAFlipStreak++;
                 if (perfectJump) {
                     perfectStreak++;
+                    perfectSound.currentTime = 0;
                     perfectSound.play();
                 }
 
@@ -303,6 +305,7 @@ function UpdatePlayer(dt) {
                     AddPopup(canvas.width * 0.5 + 100, canvas.height - 100, "PERFECT!", "#FF0");
                 }
                 else {
+                    goodSound.currentTime = 0;
                     goodSound.play();
                     AddPopup(canvas.width * 0.5 + 100, canvas.height - 100, "GOOD!", "#0F4");
                 }
@@ -376,6 +379,7 @@ function UpdateUI(dt) {
                 mainMenuTouch = true;
             }
             mainMenu = false;
+            document.getElementById("muteButton").classList.remove("hidden");
         }
 
         // Reset game?
@@ -757,5 +761,31 @@ document.addEventListener("touchmove", function (event) {
     }
 }, { passive: false });
 
+
+const allSounds = [fallOutSound, goodSound, perfectSound, laughingSound];
+
+function toggleMute() {
+    const isMuted = localStorage.getItem("ohflip.muted") === "true"; 
+    const newMuteState = !isMuted; // Toggle state
+
+    allSounds.forEach(sound => sound.muted = newMuteState); 
+    localStorage.setItem("ohflip.muted", newMuteState); 
+    updateMuteButton(); 
+}
+
+function updateMuteButton() {
+    const isMuted = localStorage.getItem("ohflip.muted") === "true";
+    document.querySelector(".mute").style.display = isMuted ? "block" : "none";
+    document.querySelector(".voice").style.display = isMuted ? "none" : "block";
+}
+
+function applyMuteState() {
+    const isMuted = localStorage.getItem("ohflip.muted") === "true";
+    allSounds.forEach(sound => sound.muted = isMuted);
+    updateMuteButton();
+}
+
+// Call function on page load
+document.addEventListener("DOMContentLoaded", applyMuteState);
 Reset();
 window.requestAnimationFrame(GameLoop);
