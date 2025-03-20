@@ -8,7 +8,7 @@ Welcome to Oh, Flip!, a fun and addictive game where you flip, jump, and aim to 
 
 Try it on mobile for the best experience!
 
-🔗 Play Now - [Oh, Flip!](https://your-game-link.com)
+🔗 Play Now - [Oh, Flip!](https://jassisingh08.github.io/oh-flip-remake/)
 
 🎮 How to Play
 
